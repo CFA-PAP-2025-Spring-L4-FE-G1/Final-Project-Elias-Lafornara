@@ -1,12 +1,18 @@
-div {
+.card {
     width: 50%;
-    text-align: center;
     margin: 0 25%;
     background-size: cover;
+    border: solid black;
+    border-radius: 25px;
+    margin-bottom: 25px;
+    text-align: center;
 }
 #clicked {
     background-color: yellow;
 }
 .title, .description {
 
+}
+#changePageForm {
+    text-align: center;
 }
