@@ -8,15 +8,22 @@
 </head>
 <body>
     <header>
-        <form class="search">
+        <form id="searchForm">
             <input type="search" id="searchbar">
-            <button id="submit">Submit</button>
+            <button type="submit">Submit</button>
+        </form>
+        <form id="downloadSettings">
+            <select id="downloadTypeSelector">
+                <option value="originalFiles">Only Original Files</option>
+                <option value="allFiles">All Files</option>
+            </select>
+            <button type="submit">Download All</button>
         </form>
         <!--Might need to set up a way for it to only download one or certain versions of books-->
         <!--If bulk downloading is complete ahead of time, work on bulk uploading-->
     </header>
     <main>
-        <!--Mass download and search-->
+        <!--Search results-->
     </main>
 
     <script src="main.js"></script>

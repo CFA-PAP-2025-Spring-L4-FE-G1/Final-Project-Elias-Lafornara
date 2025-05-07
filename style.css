@@ -7,11 +7,8 @@
     margin-bottom: 25px;
     text-align: center;
 }
-#clicked {
+.clicked {
     background-color: yellow;
-}
-.title, .description {
-
 }
 #changePageForm {
     text-align: center;
