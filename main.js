@@ -8,28 +8,60 @@ const downloadSettings = document.querySelector("#downloadSettings");
 /* Global variables */
 let currentPage = 1;
 let currentQuery = "";
+let pages = {};
 
 
 
 async function search() {
     if (currentQuery != "") {
-        main.innerHTML = "";
         let url = "https://archive.org/advancedsearch.php?q=";
         url += currentQuery + "&output=json&rows=50&page=" + currentPage;
         console.log(url) // Debug
-        let results = fetch(url);
-        results = await results;
-        results = await results.json();
-        results = results.response.docs; // get the items from the search api
-        console.log(results); // Debug
+        if (pages[currentPage]) {
+            displayCachedPage()
+        }
+        else {
+            let results = fetch(url);
+            results = await results;
+            results = await results.json();
+            results = results.response.docs; // get the items from the search api
+            console.log(results); // Debug
+            displaySearchResults(results); // display them in the main container
+        }
         
-        displaySearchResults(results); // display them in the main container
 
         makePageChanger();
     }
 }
 
+function displayCachedPage() {
+    console.log(pages)
+    for (let page of Object.values(pages)) {
+        if (page = pages[currentPage]) {
+            for (let card of page) {
+                card.removeAttribute("hidden");
+            }
+        }
+        else {
+            for (let card of page) {
+                card.setAttribute("hidden", true);
+            }
+        }
+    }
+}
+
+
+
+
 function displaySearchResults(results) {
+    let page = [];
+
+    for (let page of Object.values(pages)) { // maybe fold this into displayCachedPages?
+        for (let card of page) {
+            card.setAttribute("hidden", true);
+        }
+    } 
+
     for (let result of results) { // create a div for each search result that contains the title (which is a link to the item) and description, then append it to the search results
         let div = document.createElement("div");
         let title = document.createElement("a");
@@ -55,8 +87,9 @@ function displaySearchResults(results) {
         div.append(title);
         div.append(description);
         main.append(div); // Append the elements to main.
-        
+        page.push(div);
     }
+    pages[currentPage] = page;
 }
 
 function makePageChanger() { // Add the navigation buttons to the bottom of the search results
@@ -112,7 +145,22 @@ function makePageChanger() { // Add the navigation buttons to the bottom of the 
 }
 
 function changePage(newPage) { // changes to the page supplied through newPage
-    currentPage = newPage
+    currentPage = newPage;
+    document.querySelector("#pageNav").remove();
+    // if (pages.length > 2) {
+    //     let maxDistance;
+    //     let index = 0;
+    //     const keys = Object.keys(pages)
+    //     for (let i = keys[0]; i < keys.length; i++) {
+    //         distance = Math.abs(currentPage - keys[i]) > maxDistance
+    //         if (maxDistance && distance) {
+    //             maxDistance = distance;
+    //             index = i;
+    //         }
+    //     }
+    //     delete pages[i]
+    // }
+    // console.log(pages) // should delete pages that are more than 2 away, does not for some reason
     search();
 }
 
@@ -173,7 +221,7 @@ async function downloadAll(identifiers) { // identifiers should be an array of s
 searchForm.addEventListener("submit", (event) => { // When the search form gets submitted,
     event.preventDefault();
  
-    currentPage = 1 // make sure the serach results start from page 1,
+    currentPage = 1 // make sure the search results start from page 1,
 
     currentQuery = searchBar.value; 
     currentQuery = currentQuery.replaceAll(" ", "+"); // update the search query,
