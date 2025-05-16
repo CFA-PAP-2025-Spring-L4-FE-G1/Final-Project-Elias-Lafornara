@@ -35,8 +35,8 @@ function displaySearchResults(results) {
         let title = document.createElement("a");
         let description = document.createElement("p"); // Create the elements
         
-        div.classList.add("card");
         div.classList.add(result.identifier);
+        div.classList.add("card", "border", "rounded", "mb-3");
         title.classList.add("title"); // Set the classes of the elements
 
         title.href = "https://archive.org/details/" + result.identifier;
@@ -60,28 +60,59 @@ function displaySearchResults(results) {
 }
 
 function makePageChanger() { // Add the navigation buttons to the bottom of the search results
-    let pageChangerContainer = document.createElement("div");
-    pageChangerContainer.id = "changePageForm";
-    if (currentPage > 1) { // If page 2 or greater is being displayed, add the back button
-        let backButton = document.createElement("button");
-        backButton.id = "backButton";
-        backButton.textContent = "Back";
-        backButton.addEventListener('click', () => changePage(-1));
-        pageChangerContainer.append(backButton);
+    let pageChangerContainer = document.createElement("nav");
+    pageChangerContainer.id = "pageNav";
+
+    let pageList = document.createElement("ul");
+    pageChangerContainer.append(pageList);
+    pageList.classList.add("pagination", "justify-content-center");
+    
+    let previousButton = document.createElement("li");
+    if (currentPage <= 1) {
+        previousButton.innerHTML += `<a class="page-link disabled">Previous</a>`; // Not quite working
     }
-    if (currentPage < 9999) { // if page 9998 or less is being displayed, add the next button (cannot go higher because of API limits)
-        let nextButton = document.createElement("button");
-        nextButton.id = "nextButton";
-        nextButton.textContent = "Next";
-        nextButton.addEventListener('click', () => changePage(1));
-        pageChangerContainer.append(nextButton);
+    else {
+        previousButton.innerHTML += `<a class="page-link" href="#">Previous</a>`;
+        previousButton.addEventListener("click", () => changePage(currentPage-1));
     }
+    pageList.append(previousButton);
+    
+    let minPage = Math.max(currentPage-1, 1);
+    let maxPage = Math.min(currentPage+1, 9998);
+
+    for (let i = minPage; i <= maxPage; i++) {
+        let pageButton = document.createElement("li");
+        pageButton.classList.add("page-item");
+        //pageButton.innerHTML = `<a class="page-link" href="#">${i}</a>`;
+        let pageLink = document.createElement("a");
+        pageLink.classList.add("page-link");
+        pageLink.innerHTML = i;
+        if (currentPage != i) {
+            pageLink.href = "#";
+            pageButton.addEventListener("click", () => changePage(i));
+        }
+        else {
+            pageLink.classList.add("active");
+        }
+        pageButton.append(pageLink);
+        pageList.append(pageButton);
+    }
+
+    let nextButton = document.createElement("li");
+    if (currentPage >= 100) {
+        nextButton.innerHTML += `<a class="page-link disabled">Next</a>`;
+    }
+    else {
+        nextButton.innerHTML += `<a class="page-link" href="#">Next</a>`;
+        nextButton.addEventListener("click", () => changePage(currentPage+1));
+    }
+    pageList.append(nextButton);
     
     main.append(pageChangerContainer);
 }
 
-function changePage(amount) { // Add amount to the page and then get the next page of search results (amount should be negative to go backwards and positive to go forwards, and is unlikely to need to be any number other than 1 or -1)
-    currentPage += amount;
+function changePage(newPage) { // changes to the page supplied through newPage
+    currentPage = newPage
     search();
 }
 
@@ -100,9 +131,9 @@ async function download(identifier) {
             downloadableFiles = true;
         }
     }
-    if (downloadableFiles == false) { // if there are no files to be downloaded, return.
+   /* if (downloadableFiles == false) { // if there are no files to be downloaded, return.
         return;
-    }
+    }*/ // Not working currently
 
 
     if (downloadType == "allFiles") { // if the original files filter is not on, set the anchor's href to the item's compress page.
@@ -115,6 +146,7 @@ async function download(identifier) {
                 originalFormats.push(file.format);
             }
         }
+        console.log(originalFormats)
         if (originalFormats == []) { // if there are no files to be downloaded, return.
             return;
         }
@@ -141,7 +173,7 @@ async function downloadAll(identifiers) { // identifiers should be an array of s
 searchForm.addEventListener("submit", (event) => { // When the search form gets submitted,
     event.preventDefault();
  
-    page = 1 // make sure the serach results start from page 1,
+    currentPage = 1 // make sure the serach results start from page 1,
 
     currentQuery = searchBar.value; 
     currentQuery = currentQuery.replaceAll(" ", "+"); // update the search query,
@@ -153,7 +185,7 @@ downloadSettings.addEventListener("submit", (event) => {
     event.preventDefault();
     let identifiers = [];
     document.querySelectorAll(".clicked").forEach((item) => { // Get the identifiers from each div that has the class "clicked", then get their second class, which should be the identifier.
-        identifiers.push(item.classList[1]); // will not work if the identifier is in any other position than 1, but it should always be as "card" should be the first class.
+        identifiers.push(item.classList[0]); // will not work if the identifier is in any other position than 0, but it should always be.
     });
     console.log(identifiers) // Debug
 

@@ -1,15 +1,22 @@
 .card {
     width: 50%;
     margin: 0 25%;
-    background-size: cover;
-    border: solid black;
-    border-radius: 25px;
-    margin-bottom: 25px;
-    text-align: center;
 }
 .clicked {
+    background-size: cover;
     background-color: yellow;
 }
 #changePageForm {
     text-align: center;
+}
+#topLevelContainer {
+    padding: 0;
+    height: 100%;
+}
+#sidebar {
+    height: stretch;
+    min-height: 100vh;
+}
+body {
+    min-height: 100vh;
 }
